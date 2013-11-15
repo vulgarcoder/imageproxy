@@ -9,10 +9,10 @@ module Imageproxy
       @options = options
       @settings = settings
 
-      if (!(options.resize || options.thumbnail || options.rotate || options.flip || options.format ||
-        options.quality || options.overlay))
-        raise "Missing action or illegal parameter value"
-      end
+      # if (!(options.resize || options.thumbnail || options.rotate || options.flip || options.format ||
+      #   options.quality || options.overlay))
+      #   raise "Missing action or illegal parameter value"
+      # end
     end
 
     def execute(user_agent=nil, timeout=nil)
@@ -23,7 +23,11 @@ module Imageproxy
                           "| composite #{@overlay_file.path} - - | convert - #{convert_options} #{new_format}#{file.path}"
         file
       else
+        if convert_options.blank? then
+        try_command_with_timeout %'#{curl options.source, :user_agent => user_agent, :timeout => timeout,:output=>file.path}'
+        else
         try_command_with_timeout %'#{curl options.source, :user_agent => user_agent, :timeout => timeout} | convert - #{convert_options} #{new_format}#{file.path}'
+         end
         file
       end
     end
