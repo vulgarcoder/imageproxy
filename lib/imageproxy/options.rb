@@ -52,7 +52,9 @@ module Imageproxy
         end
       end.compact.join(', ')
     end
-
+    def tmp_path
+      "#{Rails.root}/tmp/images/"+Digest::MD5.hexdigest(to_s)
+    end
     private
 
     def unescape_source

@@ -94,10 +94,12 @@ module Imageproxy
     
     def file
       @tempfile ||= begin
-        file = Tempfile.new("imageproxy")
-        file.chmod 0644 if @settings[:world_readable_tempfile]
-        file.close
-        file
+        # file = Tempfile.new("imageproxy")
+        # file.chmod 0644 if @settings[:world_readable_tempfile]
+        # file.close
+        file_path=options.tmp_path
+        FileUtils.touch(file_path)
+        File.new(file_path)
       end
     end
   end
