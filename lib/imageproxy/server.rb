@@ -29,7 +29,7 @@ module Imageproxy
           alias to_path path
         end
 
-        file.open
+        # file.open
         [200, {"Cache-Control" => "max-age=#{cachetime}, must-revalidate"}.merge(content_type(file, options)), file]
       when "identify"
         check_signature request, options

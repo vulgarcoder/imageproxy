@@ -101,7 +101,7 @@ module Imageproxy
 
         save_path = Imageproxy::Options.image_save_path
         file_name = File.join(save_path, file_digest_name)
-        
+       FileUtils.touch(file_name) 
         file = File.new(file_name)
         file.chmod 0644
         file.close
@@ -111,7 +111,7 @@ module Imageproxy
     end
 
     def file_digest_name
-      file_name = Digest::SHA1.hexdigest([options.source].to_s)
+      file_name = Digest::SHA1.hexdigest([options.to_s].to_s)
     end
   end
 end
