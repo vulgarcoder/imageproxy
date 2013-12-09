@@ -99,10 +99,11 @@ module Imageproxy
     def file
       @tempfile ||= begin
 
-        file_name = file_digest_name
-
+        save_path = Imageproxy::Options.image_save_path
+        file_name = File.join(save_path, file_digest_name)
+        
         file = File.new(file_name)
-        file.chmod 0644 if @settings[:world_readable_tempfile]
+        file.chmod 0644
         file.close
         file
 

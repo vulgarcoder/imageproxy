@@ -19,27 +19,27 @@ module Imageproxy
       cachetime = config(:cache_time) ? config(:cache_time) : 86400
 
       case options.command
-        when "convert", "process", nil
-          check_signature request, options
-          check_domain options
-          check_size options
+      when "convert", "process", nil
+        check_signature request, options
+        check_domain options
+        check_size options
+        file = convert_file(options, user_agent)
 
-          file = convert_file(options, user_agent)
-          class << file
-            alias to_path path
-          end
+        class << file
+          alias to_path path
+        end
 
-          file.open
-          [200, {"Cache-Control" => "max-age=#{cachetime}, must-revalidate"}.merge(content_type(file, options)), file]
-        when "identify"
-          check_signature request, options
-          check_domain options
+        file.open
+        [200, {"Cache-Control" => "max-age=#{cachetime}, must-revalidate"}.merge(content_type(file, options)), file]
+      when "identify"
+        check_signature request, options
+        check_domain options
 
-          [200, {"Content-Type" => "text/plain"}, [Identify.new(options).execute(user_agent)]]
-        when "selftest"
-          [200, {"Content-Type" => "text/html"}, [Selftest.html(request, config?(:signature_required), config(:signature_secret))]]
-        else
-          @file_server.call(env)
+        [200, {"Content-Type" => "text/plain"}, [Identify.new(options).execute(user_agent)]]
+      when "selftest"
+        [200, {"Content-Type" => "text/html"}, [Selftest.html(request, config?(:signature_required), config(:signature_secret))]]
+      else
+        @file_server.call(env)
       end
     rescue
       STDERR.puts "Request failed: #{options}"

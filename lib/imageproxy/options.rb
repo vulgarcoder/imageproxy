@@ -43,6 +43,14 @@ module Imageproxy
       @hash[symbol.to_s] || @hash[symbol]
     end
 
+    def self.image_save_path
+      @@image_save_path
+    end
+
+    def self.image_save_path=(_path)
+      @@image_save_path =_path if File.exist?(_path)
+    end
+
     def to_s
       @hash.map do |key, value|
         if key && value
@@ -52,6 +60,7 @@ module Imageproxy
         end
       end.compact.join(', ')
     end
+
 
     private
 
