@@ -16,18 +16,22 @@ module Imageproxy
     end
 
     def execute(user_agent=nil, timeout=nil)
+
+
+      return File.new(file_digest_name) if File.exist?(file_digest_name)
+
       if options.overlay
         @overlay_file ||= Tempfile.new("imageproxy").tap(&:close)
         try_command_with_timeout(curl options.overlay, :user_agent => user_agent, :timeout => timeout, :output => @overlay_file.path)
         try_command_with_timeout curl(options.source, :user_agent => user_agent, :timeout => timeout) +
-                          "| composite #{@overlay_file.path} - - | convert - #{convert_options} #{new_format}#{file.path}"
-        file
+          "| composite #{@overlay_file.path} - - | convert - #{convert_options} #{new_format}#{file.path}"
+          file
       else
         if convert_options.blank? then
-        try_command_with_timeout %'#{curl options.source, :user_agent => user_agent, :timeout => timeout,:output=>file.path}'
+          try_command_with_timeout %'#{curl options.source, :user_agent => user_agent, :timeout => timeout,:output=>file.path}'
         else
-        try_command_with_timeout %'#{curl options.source, :user_agent => user_agent, :timeout => timeout} | convert - #{convert_options} #{new_format}#{file.path}'
-         end
+          try_command_with_timeout %'#{curl options.source, :user_agent => user_agent, :timeout => timeout} | convert - #{convert_options} #{new_format}#{file.path}'
+        end
         file
       end
     end
@@ -55,16 +59,16 @@ module Imageproxy
 
     def resize_thumbnail_options(size)
       case options.shape
-        when "cut"
-          background = options.background ? %|"#{options.background}"| : %|none -matte|
-          "#{size}^ -background #{background} -gravity center -extent #{size}"
-        when "preserve"
-          size
-        when "pad"
-          background = options.background ? %|"#{options.background}"| : %|none -matte|
-          "#{size} -background #{background} -gravity center -extent #{size}"
-        else
-          size
+      when "cut"
+        background = options.background ? %|"#{options.background}"| : %|none -matte|
+        "#{size}^ -background #{background} -gravity center -extent #{size}"
+      when "preserve"
+        size
+      when "pad"
+        background = options.background ? %|"#{options.background}"| : %|none -matte|
+        "#{size} -background #{background} -gravity center -extent #{size}"
+      else
+        size
       end
     end
 
@@ -79,26 +83,34 @@ module Imageproxy
 
     def interlace_options
       case options.progressive
-        when "true"
-          "-interlace JPEG"
-        when "false"
-          "-interlace none"
-        else
-          ""
+      when "true"
+        "-interlace JPEG"
+      when "false"
+        "-interlace none"
+      else
+        ""
       end
     end
 
     def new_format
       options.format ? "#{options.format}:" : ""
     end
-    
+
     def file
       @tempfile ||= begin
-        file = Tempfile.new("imageproxy")
+
+        file_name = file_digest_name
+
+        file = File.new(file_name)
         file.chmod 0644 if @settings[:world_readable_tempfile]
         file.close
         file
+
       end
+    end
+
+    def file_digest_name
+      file_name = Digest::SHA1.hexdigest([options.source].to_s)
     end
   end
 end
